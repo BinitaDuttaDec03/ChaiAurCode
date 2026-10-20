@@ -490,3 +490,101 @@ SELECT * FROM products
 ORDER BY product_id
 LIMIT 5
 OFFSET 5;
+
+
+SELECT * FROM orders AS o
+INNER JOIN employees AS e
+ON o.employee_id=e.employee_id;
+
+
+SELECT * FROM orders AS o
+LEFT JOIN employees AS e
+ON o.employee_id=e.employee_id;
+
+
+SELECT * FROM orders AS o
+RIGHT JOIN employees AS e
+ON o.employee_id=e.employee_id;
+
+
+SELECT * FROM orders AS o
+FULL OUTER JOIN employees AS e
+ON o.employee_id=e.employee_id;
+
+
+SELECT * FROM categories
+CROSS JOIN departments;
+
+
+SELECT * FROM orders;
+SELECT * FROM payments;
+
+
+SELECT c.first_name, c.last_name, o.order_id, o.status FROM customers AS C
+LEFT JOIN orders AS o
+ON c.customer_id=o.customer_id
+WHERE o.order_id IS NULL;
+
+
+SELECT * FROM orders AS o
+LEFT JOIN payments AS p
+ON o.order_id=p.order_id
+WHERE p.payment_id IS NULL;
+
+
+SELECT 
+    o.order_id,
+    o.status,
+    oi.product_id,
+    oi.unit_price,
+    p.product_name,
+    p.price,
+    c.category_name,
+    cu.first_name,
+    cu.last_name
+FROM orders AS o
+LEFT JOIN order_items AS oi ON o.order_id=oi.order_id
+LEFT JOIN products AS p ON p.product_id=oi.product_id
+LEFT JOIN categories AS c ON c.category_id=p.category_id
+LEFT JOIN customers AS cu ON cu.customer_id=o.customer_id; 
+
+
+SELECT * FROM employees;
+
+
+SELECT 
+    e.first_name AS e_name,
+    m.first_name AS m_name
+FROM employees AS e
+JOIN employees AS m
+ON e.manager_id=m.employee_id;
+
+
+
+SELECT 
+    COUNT(*) AS cust_count,
+    COUNT(phone) AS cust_phone
+FROM customers;
+
+
+SELECT COUNT(DISTINCT country) FROM customers;
+
+
+SELECT
+    order_item_id,
+    quantity,
+    unit_price,
+    quantity*unit_price AS total_selling_val
+FROM order_items;
+
+
+SELECT SUM(quantity*unit_price) AS total_revenue FROM order_items;
+
+
+SELECT ROUND(AVG(price), 2) AS avg_price FROM products;
+
+
+SELECT
+    MIN(price) AS min_price,
+    MAX(price) AS max_price
+FROM products;
