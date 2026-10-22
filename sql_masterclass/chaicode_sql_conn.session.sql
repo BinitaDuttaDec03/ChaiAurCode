@@ -88,3 +88,73 @@ SELECT
 FROM employees AS e
 JOIN employees AS m
 ON e.manager_id=m.employee_id;
+
+
+-- Give me total revenue across all orders till now
+
+SELECT
+    SUM(quantity*unit_price) AS "Total Revenue"
+FROM order_items;
+
+
+-- Give me total number of products in each category
+
+SELECT
+    category_id,
+    COUNT(*)
+FROM products
+GROUP BY category_id;
+
+
+-- Give me total number of active and inactive products in each category
+
+SELECT
+    category_id,
+    is_active,
+    COUNT(*)
+FROM products
+GROUP BY category_id, is_active;
+
+
+-- Give me total number of products in each category include category name in the results
+
+SELECT
+    p.category_id, 
+    c.category_name,
+    COUNT(*)
+FROM products AS p
+JOIN categories AS c
+ON p.category_id=c.category_id
+GROUP BY p.category_id, c.category_name;
+
+
+-- Give me total number of products in each category and give me categories having > 5 products
+
+SELECT
+    category_id,
+    COUNT(*)
+FROM products
+GROUP BY category_id
+HAVING COUNT(*)>5;
+
+
+-- Find departments having more than one employee, where their combined salary of whole department exceeds 200000 rupees.
+
+SELECT
+    department_id,
+    COUNT(*),
+    SUM(salary) AS tot_dept_salary
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*)>1 AND SUM(salary)>200000;
+
+
+-- Find departments having more than one managed employee.
+
+SELECT
+    department_id,
+    COUNT(*),
+FROM employees
+WHERE manager_id IS NOT NULL
+GROUP BY department_id
+HAVING COUNT(*)>1;
