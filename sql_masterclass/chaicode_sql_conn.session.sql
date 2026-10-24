@@ -307,3 +307,40 @@ SELECT
         )
     ) AS is_above_avg
 FROM customer_spend AS ct;
+
+
+-- Give me total product's price sum on category level
+
+SELECT
+    category_id,
+    SUM(price) AS product_sum
+FROM products
+GROUP BY category_id;
+
+
+SELECT
+    category_id,
+    price,
+    SUM(price) OVER (PARTITION BY category_id) AS category_total_price
+FROM products;
+
+
+-- Without affecting or reducing the table structure give me average price across all the products
+
+SELECT
+    category_id,
+    price,
+    ROUND(AVG(price) OVER(), 2) AS avg_price
+FROM products;
+
+
+-- Give rank to a product based on how pricy it is
+
+SELECT
+    product_id,
+    product_name,
+    price,
+    ROW_NUMBER() OVER (ORDER BY price DESC) AS product_row_rank,
+    RANK() OVER (ORDER BY price DESC) AS product_rank,
+    DENSE_RANK() OVER (ORDER BY price DESC) AS product_dense_rank
+FROM products;
