@@ -220,18 +220,90 @@ ON oi.product_id=p.product_id
 GROUP BY p.category_id
 HAVING SUM(oi.unit_price*oi.quantity)>500;
 
+
 SELECT
-    category_id,
-    category_sales
+    c.category_id,
+    c.category_name,
+    category_stats.category_sales
 FROM (
     SELECT
         p.category_id AS stat_id,
         SUM(oi.unit_price*oi.quantity) AS category_sales
     FROM order_items AS oi
-    JOIN products AS p
+    LEFT JOIN products AS p
     ON oi.product_id=p.product_id
     GROUP BY p.category_id
 ) AS category_stats
 LEFT JOIN categories AS c
 ON category_stats.stat_id=c.category_id
-WHERE category_sales>500;
+WHERE category_stats.category_sales>500;
+
+
+WITH category_stats AS (
+    SELECT
+        p.category_id,
+        SUM(oi.unit_price*oi.quantity) AS category_sales
+    FROM order_items AS oi
+    LEFT JOIN products AS p
+    ON oi.product_id=p.product_id
+    GROUP BY p.category_id
+)
+SELECT
+    c.category_id,
+    c.category_name,
+    category_stats.category_sales
+FROM category_stats
+JOIN categories AS c
+ON category_stats.category_id=c.category_id;
+
+
+-- Give me highest selling category
+
+WITH category_stats AS (
+    SELECT
+        p.category_id,
+        SUM(oi.unit_price*oi.quantity) AS category_sales
+    FROM order_items AS oi
+    LEFT JOIN products AS p
+    ON oi.product_id=p.product_id
+    GROUP BY p.category_id
+),
+hsc AS(
+    SELECT
+        *
+    FROM category_stats
+    ORDER BY category_sales DESC LIMIT 1
+)
+SELECT
+    c.category_id,
+    c.category_name,
+    hsc.category_sales
+FROM hsc
+JOIN categories AS c
+ON hsc.category_id=c.category_id;
+
+
+-- Give me total spend of a customer. Also give me average spend of all customer. Also give me flag TRUE or FALSE basis of if the customer have above average spending
+
+WITH customer_spend AS (
+    SELECT
+        o.customer_id,
+        SUM(oi.quantity*oi.unit_price) AS customer_sales
+    FROM orders AS o
+    JOIN order_items AS oi
+    ON o.order_id=oi.order_id
+    WHERE o.status='completed'
+    GROUP BY o.customer_id
+)
+SELECT
+    ct.customer_id,
+    ct.customer_sales,
+    (
+        SELECT ROUND(AVG(customer_sales), 2) FROM customer_spend
+    )AS avg_spend,
+    (
+    ct.customer_sales>(
+        SELECT ROUND(AVG(customer_sales), 2) FROM customer_spend
+        )
+    ) AS is_above_avg
+FROM customer_spend AS ct;
