@@ -158,3 +158,80 @@ FROM employees
 WHERE manager_id IS NOT NULL
 GROUP BY department_id
 HAVING COUNT(*)>1;
+
+
+-- Give me all the customer having at least one cancelled order
+
+SELECT
+    o.customer_id,
+    c.first_name,
+    o.status
+FROM customers AS c
+JOIN orders AS o
+ON c.customer_id=o.customer_id
+WHERE o.status='cancelled';
+
+
+SELECT
+    customer_id,
+    first_name
+FROM customers
+WHERE customer_id IN (
+    SELECT
+        customer_id,
+    FROM orders
+    WHERE status='cancelled'
+)
+
+
+-- Give me all the products which are having price > average price across all products
+
+SELECT 
+    product_id,
+    product_name,
+    price
+FROM products
+WHERE price>(
+    SELECT
+        ROUND(AVG(price), 2)
+    FROM products
+);
+
+
+-- Give me sales on category level
+
+SELECT
+    p.category_id,
+    SUM(oi.unit_price*oi.quantity) AS category_sales
+FROM order_items AS oi
+JOIN products AS p
+ON oi.product_id=p.product_id
+GROUP BY p.category_id;
+
+
+-- Give me sales on category level and categories having sales > 500. Return category name as well
+
+SELECT
+    p.category_id,
+    SUM(oi.unit_price*oi.quantity) AS category_sales
+FROM order_items AS oi
+JOIN products AS p
+ON oi.product_id=p.product_id
+GROUP BY p.category_id
+HAVING SUM(oi.unit_price*oi.quantity)>500;
+
+SELECT
+    category_id,
+    category_sales
+FROM (
+    SELECT
+        p.category_id AS stat_id,
+        SUM(oi.unit_price*oi.quantity) AS category_sales
+    FROM order_items AS oi
+    JOIN products AS p
+    ON oi.product_id=p.product_id
+    GROUP BY p.category_id
+) AS category_stats
+LEFT JOIN categories AS c
+ON category_stats.stat_id=c.category_id
+WHERE category_sales>500;
