@@ -381,3 +381,6 @@ SELECT
     first_name,
     last_name
 FROM employees;
+
+
+CREATE INDEX idx_customer_email ON customers(email);
