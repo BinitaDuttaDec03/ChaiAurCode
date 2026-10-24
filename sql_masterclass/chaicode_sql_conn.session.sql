@@ -344,3 +344,40 @@ SELECT
     RANK() OVER (ORDER BY price DESC) AS product_rank,
     DENSE_RANK() OVER (ORDER BY price DESC) AS product_dense_rank
 FROM products;
+
+
+-- Give me list of users/humans that are there inside the community
+
+SELECT
+    first_name,
+    last_name
+FROM customers
+UNION ALL
+SELECT
+    first_name,
+    last_name
+FROM employees;
+
+
+SELECT
+    first_name,
+    last_name
+FROM customers
+UNION
+SELECT
+    first_name,
+    last_name
+FROM employees;
+
+
+SELECT
+    'customer' AS role,
+    first_name,
+    last_name
+FROM customers
+UNION ALL
+SELECT
+    'employee' AS role,
+    first_name,
+    last_name
+FROM employees;
